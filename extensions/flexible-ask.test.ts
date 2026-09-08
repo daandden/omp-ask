@@ -33,6 +33,17 @@ function mockPi() {
 	};
 }
 
+// Stock lines from packages/coding-agent/src/prompts/tools/ask.md that must
+// survive verbatim — the ONLY allowed prose change is the <caution> line.
+const PRESERVED = [
+	"Multiple approaches with significantly different tradeoffs user should weigh.",
+	"Use `questions` for related questions, not one at a time.",
+	"Set `multi: true` on a question to allow multiple selections.",
+	"Short option labels; explanatory tradeoffs in `description`, not labels.",
+	"If multiple choices acceptable: pick most conservative/standard option; proceed; state choice.",
+	'Do NOT include "Other"; UI automatically adds "Other (type your own)" to every question.',
+];
+
 describe("flexible-ask", () => {
 	test("shadows ask at read tier with no fixed option cap", () => {
 		const { pi, captured } = mockPi();
@@ -42,6 +53,13 @@ describe("flexible-ask", () => {
 		expect(def.approval).toBe("read");
 		expect(def.description).not.toContain("2-5");
 		expect(def.description).toMatch(/no fixed count/i);
+	});
+
+	test("preserves all stock prompt lines except the option-count guidance", () => {
+		const { pi, captured } = mockPi();
+		flexibleAsk(pi as any);
+		const def = captured();
+		for (const line of PRESERVED) expect(def.description).toContain(line);
 	});
 
 	test("delegates execution to the native tool with params intact", async () => {
