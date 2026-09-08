@@ -55,10 +55,12 @@ describe("flexible-ask", () => {
 		expect(def.description).toMatch(/no fixed count/i);
 	});
 
-	test("preserves all stock prompt lines except the option-count guidance", () => {
+	test("description is the static .md, preserving all stock lines", async () => {
 		const { pi, captured } = mockPi();
 		flexibleAsk(pi as any);
 		const def = captured();
+		const md = await Bun.file(new URL("./flexible-ask.md", import.meta.url)).text();
+		expect(def.description).toBe(md.trimEnd());
 		for (const line of PRESERVED) expect(def.description).toContain(line);
 	});
 
