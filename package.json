@@ -1,0 +1,14 @@
+{
+	"name": "omp-ask",
+	"version": "0.1.0",
+	"private": true,
+	"description": "OMP extension: flexible option counts for the ask tool (shadow + delegate to native)",
+	"license": "MIT",
+	"type": "module",
+	"omp": {
+		"extensions": ["./extensions/flexible-ask.ts"]
+	},
+	"devDependencies": {
+		"bun-types": "latest"
+	}
+}
