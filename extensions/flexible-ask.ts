@@ -1,4 +1,3 @@
-// @ts-nocheck — runs inside omp; install @oh-my-pi/pi-coding-agent for types.
 // Flexible Ask: shadow the built-in `ask` tool, changing ONLY the option-count
 // guidance, then delegate execution to the native tool.
 //
@@ -14,32 +13,29 @@ import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent";
 import flexibleAskDescription from "./flexible-ask.md" with { type: "text" };
 
 export default function flexibleAsk(pi: ExtensionAPI) {
-	const z = pi.zod;
+	const type = pi.arktype;
+	const parameters = type({
+		questions: type({
+			id: "string",
+			question: "string",
+			"header?": "string",
+			options: type({
+				label: "string",
+				"description?": "string",
+				"preview?": "string",
+			}).array(),
+			"multi?": "boolean",
+			"recommended?": "number",
+		})
+			.array()
+			.atLeastLength(1),
+	});
 
-	pi.registerTool({
+	pi.registerTool<typeof parameters>({
 		name: "ask",
 		label: "Ask",
 		description: flexibleAskDescription.trimEnd(),
-		parameters: z.object({
-			questions: z
-				.array(
-					z.object({
-						id: z.string(),
-						question: z.string(),
-						header: z.string().optional(),
-						options: z.array(
-							z.object({
-								label: z.string(),
-								description: z.string().optional(),
-								preview: z.string().optional(),
-							}),
-						),
-						multi: z.boolean().optional(),
-						recommended: z.number().optional(),
-					}),
-				)
-				.min(1),
-		}),
+		parameters,
 		// Native ask is read-tier; omitted defaults to exec and would
 		// re-prompt/deny differently. Keep the tier.
 		approval: "read",
